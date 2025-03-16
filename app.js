@@ -1,11 +1,13 @@
+import { configDotenv } from "dotenv";
 import express from "express";
 import userRoute from "./routes/user_routes.js";
 import {connectToMongoDB} from "./connect.js";
 import cookieParser from "cookie-parser";
 
-connectToMongoDB("mongodb://127.0.0.1:27017/todoDB").then(console.log("mongodb connected"));
+configDotenv();
+connectToMongoDB(process.env.MONGO_URL).then(console.log("mongodb connected"));
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT;
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.raw());

@@ -1,6 +1,10 @@
 {
   "name": "express_proj",
   "version": "1.0.0",
+<<<<<<< HEAD
+=======
+  "type": "module",
+>>>>>>> 3ac3411 (chore: update project configuration and clean up tracked files)
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",

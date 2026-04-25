@@ -3,12 +3,11 @@ import {getUser, setUser} from "../services/auth.js";
 
 export async function signUp(req, res){
     const user = req.body;
-    console.log(user);
     if(await userModel.findOne({$or: [
         {username: user.username},
         {email: user.email}
     ]})) {
-        console.log("username or email already exists");
+        return res.status(409).json({ error: "Username or email already exists" });
     };
     const userdata = await userModel.create(user);
     const token = setUser(userdata);
@@ -18,8 +17,12 @@ export async function signUp(req, res){
 
 export async function logIn(req, res){
     const userdata = req.body;
-    if(await userModel.findOne({$and: [{username: userdata.username}, {email: userdata.email}, {password: userdata.password}]})){
-        const token = setUser(userdata);
+    const foundUser = await userModel.findOne(
+        {$or: [{username: userdata.identifier}, {email: userdata.identifier}], 
+        password: userdata.password}
+    )
+    if(foundUser){
+        const token = setUser(foundUser);
         res.cookie("uid", token);
         return res.status(200).json({success: "successfully logged in"})
     }
@@ -27,29 +30,24 @@ export async function logIn(req, res){
 }
 
 export async function todo(req, res){
-    const userdata = getUser(req.cookies.uid);
-    const username =  userdata.username;
-    const user = await userModel.findOne({"username": username});
-    if (user != null) {
-        const notedata = await noteModel.find({"user" : user._id});
-        const clistdata = await clistModel.find({"user" : user._id});
+    const userdata = getUser(req.cookies?.uid);
+    if(userdata){
+        const userId =  userdata._id;
+        const notedata = await noteModel.find({"user" : userId});
+        const clistdata = await clistModel.find({"user" : userId});
         return res.status(200).json({notedata, clistdata});
     }
-    return res.status(400).json({error: "wrong credentials"});
+    return res.status(401).json({ error: "Unauthorized: No valid token provided" })
 }
 
 export async function note(req, res){
-    const userdata = getUser(req.cookies.uid);
-    const username =  userdata.username;
-    const user = await userModel.findOne({"username": username});
-    if (user != null) {
-
+    const userdata = getUser(req.cookies?.uid);
+    if(userdata){
         if (req.method == "POST"){
             const notedata = req.body;
-            const note = await noteModel.create({"user": user._id,  ...notedata});
+            const note = await noteModel.create({"user": userdata._id,  ...notedata});
             return res.status(201).json({success: true, note});
         }
-
         else if (req.method == "PATCH"){
             const notedata = req.body;
             const ObjectId = req.params.objid
@@ -72,19 +70,18 @@ export async function note(req, res){
                 return res.status(200).json(note);
             }
         }
+ 
     }
+    return res.status(401).json({ error: "Unauthorized: No valid token provided" })
 }
 
 
 export async function clist(req, res){
-    const userdata = getUser(req.cookies.uid);
-    const username =  userdata.username;
-    const user = await userModel.findOne({"username": username});
-    if (user != null) {
-
+    const userdata = getUser(req.cookies?.uid);
+    if(userdata){
         if (req.method == "POST"){
             const clistdata = req.body;
-            const clist = await clistModel.create({"user": user._id,  ...clistdata});
+            const clist = await clistModel.create({"user": userdata._id,  ...clistdata});
             return res.status(201).json({success: true, clist});
         }
 
@@ -111,6 +108,7 @@ export async function clist(req, res){
             }
         }
     }
+    return res.status(401).json({ error: "Unauthorized: No valid token provided" })
 }
 
 

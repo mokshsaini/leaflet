@@ -6,5 +6,10 @@ export function setUser(user){
 }
 
 export function getUser(token){
-    return jwt.verify(token, secret);
+    try{
+        return jwt.verify(token, secret);
+    }catch(error){
+        return null;
+    }
+    
 }

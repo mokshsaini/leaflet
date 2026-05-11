@@ -1,11 +1,18 @@
 import { Router } from "express";
-import {signUp, logIn, todo, note, clist} from "../controller/handlers.js";
-import { emailAuth, passwordAuth, usernameAuth } from "../middleware/userAuth.js";
+import { todo, note, clist } from "../controller/todoHandlers.js";
+import { signUp, logIn, verifyToken } from "../controller/authHandlers.js";
+import {
+  emailAuth,
+  passwordAuth,
+  tokenAuth,
+  usernameAuth,
+} from "../middleware/userAuth.js";
 
 const router = Router();
 
 router.post("/signup", [usernameAuth, emailAuth, passwordAuth], signUp);
-router.post("/login",  logIn); 
+router.post("/login", logIn);
+router.get("/verify", tokenAuth, verifyToken);
 router.get("/", todo);
 router.post("/note", note);
 router.patch("/note/:objid", note);

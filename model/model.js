@@ -1,71 +1,71 @@
 import mongoose from "mongoose";
 
-
-const userSchema = new mongoose.Schema({
-
-    username : {
-        type : String,
-        required : true,
-        unique : true,
-        maxLength : 20
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      maxLength: 20,
     },
 
-    password : {
-        type : String,
-        required : true,
-        maxLength : 20,
-        minLength : 8
+    password: {
+      type: String,
+      required: true,
+      maxLength: 20,
+      minLength: 8,
     },
 
-    email : {
-        type : String,
-        required : true,
-        unique : true
-    }
-},
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+  },
 
+  { timestamps: true },
+);
 
-{timestamps : true});
+const noteSchema = new mongoose.Schema(
+  {
+    title: String,
+    note: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
+  },
 
+  { timestamps: true },
+);
 
-const noteSchema = new mongoose.Schema({
-  title : String,
-  note : String,
-  user : {
-      type : mongoose.Schema.Types.ObjectId,
-      ref : "user",
-      required : true
-   }
-},
+const checkListSchema = new mongoose.Schema(
+  {
+    title: String,
 
-{timestamp : true});
-
-
-const checkListSchema = new mongoose.Schema({
-
-    title : String,
-
-    itemlist : [{
-
-        data : {
-            type : String
+    itemlist: [
+      {
+        data: {
+          type: String,
         },
 
-        done : {
-            type : Boolean,
-            default : false
-        }
-     }],
+        done: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
 
-    user : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "user",
-        required : true
-     }
-},
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
+  },
 
-{timestamp : true})
-
+  { timestamps: true },
+);
 
 export const userModel = mongoose.model("user", userSchema);
 export const noteModel = mongoose.model("note", noteSchema);
